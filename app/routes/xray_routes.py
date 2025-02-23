@@ -65,7 +65,7 @@ async def get_unverified_xrays(
 async def classify_xray(
     scan_id: str,
     service: XRayService = Depends(get_xray_service)
-) -> str:
+) -> dict:
     """
     Classify an X-ray scan based on its AI classification
     """
@@ -75,7 +75,7 @@ async def classify_xray(
 async def classify_image_url(
     image_url: str,
     service: XRayService = Depends(get_xray_service)
-) -> str:
+) -> dict:
     """
     Classify an X-ray image directly from an image URL
     """

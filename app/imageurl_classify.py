@@ -7,7 +7,7 @@ from io import BytesIO
 
 class ImageClassifier:
     def __init__(self):
-        self.model_path = r'app\classifier1.keras'
+        self.model_path = r'classifier1.keras'
         self.confidence_threshold = 0.5
         self.model = self._load_model()
         self.num_classes = self.model.output_shape[-1]
@@ -61,11 +61,17 @@ class ImageClassifier:
             predictions = self.model.predict(x, verbose=0)[0]
             
             labels = [self.class_labels[i] for i in range(self.num_classes) if predictions[i] >= self.confidence_threshold]
+            # get a list of confidence values crossing the threshold for each label
+            confidences = [predictions[i] for i in range(self.num_classes) if predictions[i] >= self.confidence_threshold]
             
             if not labels:
                 labels.append(self.class_labels[np.argmax(predictions)])
+                confidences.append(predictions[np.argmax(predictions)])
             
-            return ", ".join(labels)
+            return {
+                "labels": ", ".join(labels),
+                "confidence_scores": ", ".join(map(str, confidences))
+            }
         
         except Exception as e:
             print(f"Error during classification: {str(e)}")

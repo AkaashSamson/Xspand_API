@@ -62,7 +62,10 @@ class XRayService:
             
             try:
                 model = ImageClassifier()
-                scan_dict['ai_classification'] = model.classify(scan_dict['image_url'])
+                results = model.classify(scan_dict['image_url'])
+                scan_dict['ai_classification'] = results['labels']
+                scan_dict['ai_confidence'] = results['confidence_scores']
+
             except Exception as e:
                 raise HTTPException(
                 status_code=400,
@@ -205,7 +208,7 @@ class XRayService:
                 detail=f"Error fetching unverified X-ray scans: {str(e)}"
             )
     
-    async def classify_xray(self, scan_id: str) -> str:
+    async def classify_xray(self, scan_id: str) -> dict:
         """
         Classify an X-ray scan based on its AI classification
         """
@@ -226,7 +229,7 @@ class XRayService:
             )
 
     
-    async def classify_image_url(self, image_url: str) -> str:
+    async def classify_image_url(self, image_url: str) -> dict:
         """
         Classify an X-ray image directly from an image URL
         """
