@@ -7,7 +7,7 @@ from io import BytesIO
 
 class ImageClassifier:
     def __init__(self):
-        self.model_path = r'classifier1.keras'
+        self.model_path = r'/app/app/classifier1.keras'
         self.confidence_threshold = 0.5
         self.model = self._load_model()
         self.num_classes = self.model.output_shape[-1]
