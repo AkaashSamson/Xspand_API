@@ -24,6 +24,10 @@ async def register_complete_patient(
     """
     return await patient_service.register_complete_patient(registration)
 
+@router.get("/status")
+async def get_all_patients_status(service: PatientService = Depends(get_patient_service)):
+    return await service.get_all_patients_status()
+
 @router.put("/{patient_id}")
 async def update_patient(patient_id: str, patient: dict, service: PatientService = Depends(get_patient_service)):
     return await service.update_patient(patient_id, patient)
@@ -52,6 +56,8 @@ async def get_patient_complete_details(
 @router.get("/")
 async def get_all_patients(service: PatientService = Depends(get_patient_service)):
     return await service.get_all_patients()
+
+
 
 @router.get("/doctor/{doctor_id}")
 async def get_doctor_patients(doctor_id: str, service: PatientService = Depends(get_patient_service)):

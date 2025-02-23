@@ -3,7 +3,7 @@ from app.models.schemas import (
     Patient, PatientRegistration, DoctorPatientRelation, 
     XRayScan, SimplePatientRegistration, CompletePatientRegistration
 )
-from app.models.enums import TreatmentStatus
+from app.models.enums import TreatmentStatus, Verify_status
 from fastapi import HTTPException
 from datetime import datetime
 from typing import Optional
@@ -198,6 +198,44 @@ class PatientService:
     async def get_all_patients(self):
         patients = await self.db.get_all_documents("patients")
         return {"message": "Patients retrieved successfully", "patients": patients}
+
+    async def get_all_patients_status(self):
+        try:
+            # Retrieve all patients
+            patients = await self.db.get_all_documents("patients")
+            
+            # Initialize the list to store patient statuses
+            patient_status_list = []
+
+            # Iterate over each patient
+            for patient in patients:
+                patient_id = patient.get("patient_id")
+                status = "Empty"  # Default status
+
+                # Retrieve all X-ray scans for the patient
+                scans = await self.db.get_all_documents("xray_scans")
+                patient_scans = [scan for scan in scans if scan.get("patient_id") == patient_id]
+
+                if patient_scans:
+                    # Check the radiologist_id in the scans
+                    if any(scan.get("radiologist_id") for scan in patient_scans):
+                        status = "Verified"
+                    else:
+                        status = "Unverified"
+
+                # Append the patient status to the list
+                patient_status_list.append({
+                    "patient_id": patient_id,
+                    "status": status
+                })
+
+            return {"message": "Patients retrieved successfully", "patients": patient_status_list}
+
+        except Exception as e:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Error retrieving patient statuses: {str(e)}"
+            )
 
     async def get_current_doctor_patients(self, doctor_id: str):
         relations = await self.db.get_all_documents("doctor_patient_relations")
@@ -427,3 +465,4 @@ class PatientService:
                 status_code=400,
                 detail=f"Error fetching patient details: {str(e)}"
             )
+
