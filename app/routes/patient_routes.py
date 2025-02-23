@@ -57,6 +57,10 @@ async def get_all_patients(service: PatientService = Depends(get_patient_service
 async def get_doctor_patients(doctor_id: str, service: PatientService = Depends(get_patient_service)):
     return await service.get_doctor_patients(doctor_id)
 
+@router.get("/doctor/current_patients/{doctor_id}")
+async def get_doctor_patients(doctor_id: str, service: PatientService = Depends(get_patient_service)):
+    return await service.get_current_doctor_patients(doctor_id)
+
 @router.post("/xray")
 async def add_xray_scan(scan: XRayScan, service: PatientService = Depends(get_patient_service)):
     return await service.add_xray_scan(scan)

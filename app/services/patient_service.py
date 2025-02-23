@@ -199,6 +199,26 @@ class PatientService:
         patients = await self.db.get_all_documents("patients")
         return {"message": "Patients retrieved successfully", "patients": patients}
 
+    async def get_current_doctor_patients(self, doctor_id: str):
+        relations = await self.db.get_all_documents("doctor_patient_relations")
+        doctor_relations = [r for r in relations if r.get("doctor_id") == doctor_id and r.get("treatment_status") == TreatmentStatus.ongoing]
+        
+        patients = []
+        for relation in doctor_relations:
+            patient = await self.db.get_document("patients", relation["patient_id"])
+            if patient:
+                patients.append({
+                    "patient": patient,
+                    "treatment_status": relation["treatment_status"],
+                    "treatment_start_date": relation["treatment_start_date"],
+                    "treatment_end_date": relation["treatment_end_date"]
+                })
+        
+        return {
+            "message": "Doctor's patients retrieved successfully",
+            "patients": patients
+        }
+    
     async def get_doctor_patients(self, doctor_id: str):
         relations = await self.db.get_all_documents("doctor_patient_relations")
         doctor_relations = [r for r in relations if r.get("doctor_id") == doctor_id]
@@ -218,6 +238,8 @@ class PatientService:
             "message": "Doctor's patients retrieved successfully",
             "patients": patients
         }
+    
+
 
     async def add_xray_scan(self, scan: XRayScan):
         await self.db.create_document("xray_scans", scan.scan_id, scan.dict())
